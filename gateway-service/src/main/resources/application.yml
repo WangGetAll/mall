@@ -1,0 +1,31 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: gateway-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 注册中心地址
+      config:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 配置中心地址
+        file-extension: yaml
+    gateway:
+      discovery:
+        locator:
+          enabled: true #启用了通过Gateway调用其他微服务的功能。这意味着网关将使用服务发现来定位其他微服务。
+      routes:
+        - id: user_service_route # 自己命名的唯一的
+          uri: lb://user-service # 对应user-service模块中yaml配置文件中的spring.application.name
+          predicates:
+            - Path=/**  # todo
+          filters:
+            - StripPrefix=1 # 使用过滤器
+        - id: oauth2_service_route # 自己命名的唯一的
+          uri: lb://oauth2-service # 对应user-service模块中yaml配置文件中的spring.application.name
+          predicates:
+            - Path=/**  # todo
+          filters:
+            - StripPrefix=1 # 使用过滤器

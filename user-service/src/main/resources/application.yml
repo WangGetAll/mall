@@ -1,0 +1,15 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: user-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 注册中心地址
+      config:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 配置中心地址
+        file-extension: yaml
+
