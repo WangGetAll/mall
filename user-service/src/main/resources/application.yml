@@ -12,4 +12,26 @@ spring:
       config:
         server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 配置中心地址
         file-extension: yaml
-
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/oauth2?serverTimezone=UTC&useSSL=false
+    username: root
+    password: 123456
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 10s
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 50
+        max-wait: -1ms
+        min-idle: 0
+third-party:
+  gitee:
+    client-id: 6d3983bdcd568506386413ef76883535c653f7d1bc415bdd56bebf0e4bebfc53
+    client-secret: 9c7d1f5c19a1f73265f1e5847a9c48932fc94fe976c315e05853fd81426133a4
+    call-back: http://localhost:9001/user/register/gitee
+    token-url: https://gitee.com/oauth/token?grant_type=authorization_code&client_id=%s&client_secret=%s&redirect_uri=%s&code=%s
+    user-url: https://gitee.com/api/v5/user?access_token=%s
+    state: GITEE

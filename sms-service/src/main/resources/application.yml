@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: sms-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 注册中心地址
+      config:
+        server-addr: 10.78.106.90:8837,10.78.106.90:8848,10.78.106.90:8859 # 配置中心地址
+        file-extension: yaml
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 10s
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 50
+        max-wait: -1ms
+        min-idle: 0
+tencent:
+  sms:
+    secretId: xxx
+    secretKey: xxx
+    region: ap-xxx
+    appId: xxx
+    signName: wjy
+    template-id:
+      phoneCode: xxxx
+      sales: xxx
