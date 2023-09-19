@@ -19,6 +19,7 @@
         <module>oauth2-service</module>
         <module>common</module>
         <module>sms-service</module>
+        <module>canal-service</module>
     </modules>
     <!--  父项目打包方式设置为pom  -->
     <packaging>pom</packaging>

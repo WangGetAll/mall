@@ -2,13 +2,13 @@ package com.wjy.user.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.wjy.common.response.CustomException;
 import com.wjy.common.response.ResponseCode;
 import com.wjy.user.config.GiteeConfig;
 import com.wjy.user.enumeration.AuthorizedGrantType;
 import com.wjy.user.enumeration.RegisterType;
 import com.wjy.user.mapper.Oauth2ClientDetailsMapper;
 import com.wjy.user.mapper.UserMapper;
-import com.wjy.user.pojo.LoginResult;
 import com.wjy.user.pojo.OAuth2Client;
 import com.wjy.user.pojo.User;
 import com.wjy.user.processor.RedisProcessor;
@@ -37,16 +37,16 @@ public class UserRegisterLoginService {
     private GiteeConfig giteeConfig;
 
     @Transactional
-    public LoginResult registerWithUsernameAndPassword(User user) {
+    public User registerWithUsernameAndPassword(User user) {
         // 已经注册
         if (userMapper.findByUserName(user.getUserName()) != null
                 || oauth2ClientDetailsMapper.findByClientId(user.getUserName()) != null) {
-            return new LoginResult(false, ResponseCode.ALREADY_REGISTER);
+            User userByUserName = userMapper.findUserByUserName(user.getUserName());
+           throw new CustomException(ResponseCode.ALREADY_REGISTER);
         }
 
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        String rawPassword = user.getPassword();
-        String encodePassword = bCryptPasswordEncoder.encode(rawPassword);
+        String encodePassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodePassword);
 
         OAuth2Client oAuth2Client = OAuth2Client.builder()
@@ -59,27 +59,33 @@ public class UserRegisterLoginService {
                 .build();
         // user信息和client信息存储到mysql
         saveUserAndOAuth2ClientToDB(user, oAuth2Client);
-        // user信息存储到redis
-        saveUserToRedis(user);
-
         user.setPassword(null);
-        return new LoginResult(true,ResponseCode.SUCCESS);
+        return user;
+    }
+    public User loginWithUsernameAndPassword(String username, String password) {
+        User user = userMapper.findUserByUserName(username);
+        if (user == null) {
+            throw new CustomException(ResponseCode.USER_NOT_EXIT);
+        }
+        saveUserToRedis(user);
+        return  user;
     }
 
+
     @Transactional
-    public LoginResult loginOrRegisterWithPhoneAndCode(String phoneNumber, String code) {
+    public User loginOrRegisterWithPhoneAndCode(String phoneNumber, String code) {
+        // 已经注册
         if (userMapper.findByPhoneNumber(phoneNumber) != null) {
            User user = userMapper.findUserByPhoneNumber(phoneNumber);
            saveUserToRedis(user);
-           return new LoginResult(true,ResponseCode.SUCCESS, user);
+           return user;
         }
+        // 短息验证码错误
         String cacheCode = String.valueOf(redisProcessor.get(phoneNumber));
-        if (StringUtils.isEmpty(cacheCode)) {
-            return new LoginResult(false, ResponseCode.CODE_EXPIRE);
+        if (StringUtils.isEmpty(cacheCode) || !cacheCode.equals(code)) {
+            throw new CustomException(ResponseCode.CODE_WRONG);
         }
-        if (!cacheCode.equals(code)) {
-            return new LoginResult(false, ResponseCode.CODE_WRONG);
-        }
+        // 注册
         User user = User.builder()
                 .userName(getDefaultUserName(phoneNumber))
                 .password("")
@@ -99,15 +105,15 @@ public class UserRegisterLoginService {
                 .build();
             saveUserAndOAuth2ClientToDB(user, oAuth2Client);
             saveUserToRedis(user);
-        return new LoginResult(true, ResponseCode.SUCCESS ,user);
+        return user;
     }
 
     @Transactional
-    public LoginResult loginOrRegisterWithGitee(HttpServletRequest request) {
+    public User loginOrRegisterWithGitee(HttpServletRequest request) {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
         if (!giteeConfig.getState().equals(state)) {
-            throw new UnsupportedOperationException("invalid state");
+            throw new CustomException(ResponseCode.PARAM_WRONE);
         }
         String tokenUrl = String.format(giteeConfig.getTokenUrl(),
                 giteeConfig.getClientId(), giteeConfig.getClientSecret(),
@@ -118,10 +124,11 @@ public class UserRegisterLoginService {
         String userUrl = String.format(giteeConfig.getUserUrl(), accessToken);
         JSONObject userInfo = restTemplate.getForObject(userUrl, JSONObject.class);
         String username = giteeConfig.getState().concat(userInfo.get("name").toString());
+        // 已经注册
         if (userMapper.findByUserName(username) != null)  {
             User user = userMapper.findUserByUserName(username);
             saveUserToRedis(user);
-            return new LoginResult(true, ResponseCode.SUCCESS, user);
+            return user;
         }
         User user = User.builder()
                 .userName(username)
@@ -139,7 +146,7 @@ public class UserRegisterLoginService {
                 .build();
         saveUserAndOAuth2ClientToDB(user, oAuth2Client);
         saveUserToRedis(user);
-        return new LoginResult(true, ResponseCode.SUCCESS, user);
+        return user;
     }
     // 用手机号注册时，生成一个默认的用户名
     private String getDefaultUserName(String phoneNumber) {
@@ -158,12 +165,5 @@ public class UserRegisterLoginService {
         redisProcessor.set(personId, user, 30,TimeUnit.DAYS);
     }
 
-    public LoginResult loginWithUsernameAndPassword(String username, String password) {
-        User user = userMapper.findUserByUserName(username);
-        if (user == null) {
-            return new LoginResult(false,ResponseCode.USER_NOT_EXIT);
-        }
-        saveUserToRedis(user);
-        return new LoginResult(true, ResponseCode.SUCCESS, user);
-    }
+
 }

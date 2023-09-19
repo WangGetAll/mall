@@ -1,24 +1,23 @@
 package com.wjy.common.response;
 
 public enum ResponseCode {
-    SUCCESS(200, "success"),
-    BAD_REQUEST(400, "bad request"),
-    UNAUTHORIZED(401, "unauthorized"),
-    ALREADY_REGISTER(601, "already register"),
-    CODE_WRONG(602, "code wrong"),
-    CODE_EXPIRE(603, "code expire"),
-    USER_NOT_EXIT(604,"user not exit");
+    SUCCESS("00000", "成功"),
+    UNAUTHORIZED("A0301", "访问未授权"),
+    ALREADY_REGISTER("A0111", "用户名已存在"),
+    CODE_WRONG("A0131", "短信验证码错误"),
+    USER_NOT_EXIT("A0201","用户账户不存在"),
+    PARAM_WRONE("A0400", "请求参数错误");
 
 
-    private final Integer code;
+    private final String code;
     private final String message;
 
-    private ResponseCode(Integer code, String message) {
+    private ResponseCode(String code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 

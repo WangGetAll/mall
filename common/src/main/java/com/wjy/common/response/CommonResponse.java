@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CommonResponse {
-    private Integer code;
+    private String code;
     private String message;
     private Object content;
 }

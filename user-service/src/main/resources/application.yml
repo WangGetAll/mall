@@ -27,6 +27,9 @@ spring:
         max-idle: 50
         max-wait: -1ms
         min-idle: 0
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
 third-party:
   gitee:
     client-id: 6d3983bdcd568506386413ef76883535c653f7d1bc415bdd56bebf0e4bebfc53

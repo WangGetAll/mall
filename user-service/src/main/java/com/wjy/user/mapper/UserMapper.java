@@ -2,10 +2,7 @@ package com.wjy.user.mapper;
 
 
 import com.wjy.user.pojo.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface UserMapper {
@@ -23,11 +20,20 @@ public interface UserMapper {
     @Select("select id,user_name,user_role,user_email, user_idcard, user_phone, user_province from user where user_phone = #{phoneNumber}")
     User findUserByPhoneNumber(String phoneNumber);
 
+    @Select("select 1 from user where id = #{id} limit 1")
+    Integer findById(Integer id);
+
+
+    @Select("select id,user_name,user_role,user_email, user_idcard, user_phone, user_province from  user " +
+            "where id = #{id}")
+    User findUserById(Integer id);
+
+    @Update("update user set user_phone = #{phoneNumber} where id = #{id}")
+    void updateUserPhoneById(Integer id, String phoneNumber);
+
 
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @Insert("insert into user(user_name, passwd, user_role) " +
             "values (#{userName}, #{password}, #{userRole})")
-    public void insert(User user);
-
-
+    void insert(User user);
 }
