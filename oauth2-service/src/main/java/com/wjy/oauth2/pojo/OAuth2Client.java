@@ -1,4 +1,4 @@
-package com.wjy.user.pojo;
+package com.wjy.oauth2.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+/*
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,7 +23,7 @@ public class OAuth2Client {
 
     private String authorizedGrantTypes;
 
-    private String webServerRedirectUri;
+    private String redirectURI;
 
     private String authorities;
 
@@ -32,5 +33,6 @@ public class OAuth2Client {
 
     private String additionalInformation;
 
-    private String autoapprove;
+    private String autoApprove;
 }
+*/

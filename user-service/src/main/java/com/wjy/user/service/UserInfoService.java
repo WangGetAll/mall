@@ -3,10 +3,13 @@ package com.wjy.user.service;
 import com.wjy.common.constant.Constants;
 import com.wjy.common.response.CustomException;
 import com.wjy.common.response.ResponseCode;
+import com.wjy.user.feignclient.OAuth2ServiceClient;
 import com.wjy.user.mapper.UserMapper;
+import com.wjy.user.pojo.CheckTokenResponse;
 import com.wjy.user.pojo.User;
 import com.wjy.user.processor.RedisProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +19,8 @@ public class UserInfoService {
     private RedisProcessor redisProcessor;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OAuth2ServiceClient oAuth2ServiceClient;
     public boolean checkPhoneBind(String personId) {
         User user = (User) redisProcessor.get(personId);
         if (user != null) {
@@ -42,5 +47,13 @@ public class UserInfoService {
             throw new CustomException(ResponseCode.USER_NOT_EXIT);
         }
         userMapper.updateUserPhoneById(id, phoneNumber);
+    }
+
+    public String getUserInfoByToken(String token) {
+        CheckTokenResponse checkTokenResponse = oAuth2ServiceClient.checkToken(token);
+        if (!checkTokenResponse.isActive()) {
+            throw new CustomException(ResponseCode.TOKEN_NOT_ACTIVE);
+        }
+        return checkTokenResponse.getUserName();
     }
 }

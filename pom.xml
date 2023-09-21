@@ -34,6 +34,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
     </dependencies>
     <!-- dependencyManagement不做实际的引入。
     它会定义jar包的版本，后续子模块引入jar包可以不写版本号   -->

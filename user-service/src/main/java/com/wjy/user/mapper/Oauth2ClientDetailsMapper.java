@@ -10,7 +10,7 @@ public interface Oauth2ClientDetailsMapper {
     @Select("select 1 from oauth_client_details where client_id = #{clientId} limit 1")
     public Integer findByClientId(String clientId);
 
-    @Insert("insert into oauth_client_details(client_id, client_secret, resource_ids, authorized_grant_types, scope, authorities) " +
-            "values (#{clientId}, #{clientSecret}, #{resourceIds}, #{authorizedGrantTypes}, #{scope}, #{authorities})")
+    @Insert("insert into oauth_client_details(client_id, client_secret, resource_ids, authorized_grant_types, scope, authorities, autoapprove, web_server_redirect_uri ) " +
+            "values (#{clientId}, #{clientSecret}, #{resourceIds}, #{authorizedGrantTypes}, #{scope}, #{authorities}, #{autoapprove}, #{webServerRedirectUri})")
     public void insert(OAuth2Client oAuth2Client);
 }
